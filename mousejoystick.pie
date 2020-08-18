@@ -1,0 +1,92 @@
+if starting then
+   //Adjustable
+   Pie.FrameRate = 1000    //Mouse frequency
+   var.M1_dpi = 800      //Mouse resolution
+   var.M1_Wheel = 22      //Throttle wheel split
+   var.M1_TWheel = 20     //Trimmers wheel split
+   //Not adjustable
+   var.M1_P = -1
+   var.M1_mapP = 60*var.M1_Wheel
+   var.M1_mapT = 60*var.M1_TWheel
+   var.M1_dpi = 2*var.M1_dpi
+   var.off = true
+   var.trim = false
+endif
+
+//Turn on/off
+if pressed (Mouse1.MiddleButton) then
+   var.off = not var.off
+endif
+
+if (var.off) then
+   //Mouse control
+   mouse.Swallow = false
+else
+   //Mouse blocked
+   mouse1.Swallow = true
+
+   //Use trimmers
+   if pressed (Keyboard.T) then
+      var.trim = not var.trim
+   endif
+
+   //Mouse delta
+   var.dx = Delta(Mouse1.DirectInputX)/var.M1_dpi
+   var.dy = Delta(Mouse1.DirectInputY)/var.M1_dpi
+   var.dz = Delta(Mouse1.DirectInputZ)
+
+   if (!var.trim) then
+      //Combined axis
+      if (!Mouse1.RightButton) then var.M1_X += var.dx
+      if released (Mouse1.LeftButton) then var.M1_Z = var.M1_X
+      if (!Mouse1.LeftButton) then var.M1_Z += var.dx
+      if released (Mouse1.RightButton) then var.M1_X = var.M1_Z
+
+      //Other axis
+      var.M1_Y += var.dy
+      var.M1_P += var.dz/var.M1_mapP
+
+      //Reset stick
+      if (Mouse1.LeftButton) and (Mouse1.RightButton) then
+         var.M1_X = 0
+         var.M1_Y = 0
+         var.M1_Z = 0
+      endif
+   else
+      var.M1_TX += var.dx
+      var.M1_TY += var.dy
+      var.M1_TZ -= var.dz/var.M1_mapT
+
+      //Reset trimmers
+      if (Mouse1.LeftButton) and (Mouse1.RightButton) then
+         var.M1_TX = 0
+         var.M1_TY = 0
+         var.M1_TZ = 0
+      endif
+   endif
+
+   //Limiter
+   if (var.M1_X < -1) then var.M1_X = -1
+   if (var.M1_X >  1) then var.M1_X =  1
+   if (var.M1_Y < -1) then var.M1_Y = -1
+   if (var.M1_Y >  1) then var.M1_Y =  1
+   if (var.M1_Z < -1) then var.M1_Z = -1
+   if (var.M1_Z >  1) then var.M1_Z =  1
+   if (var.M1_P < -1) then var.M1_P = -1
+   if (var.M1_P >  1) then var.M1_P =  1
+   if (var.M1_TX < -1) then var.M1_TX = -1
+   if (var.M1_TX >  1) then var.M1_TX =  1
+   if (var.M1_TY < -1) then var.M1_TY = -1
+   if (var.M1_TY >  1) then var.M1_TY =  1
+   if (var.M1_TZ < -1) then var.M1_TZ = -1
+   if (var.M1_TZ >  1) then var.M1_TZ =  1
+
+   //Translator
+   PPJoy1.Analog0 = Var.M1_X      //Ailerons
+   PPJoy1.Analog1 = Var.M1_Y      //Pitch
+   PPJoy1.Analog2 = Var.M1_Z      //Rudder
+   PPJoy1.Analog3 = Var.M1_TX      //Aileron trimmer
+   PPJoy1.Analog4 = Var.M1_TY      //Pitch trimmer
+   PPJoy1.Analog5 = Var.M1_TZ      //Trimmer rudder
+   PPJoy1.Analog6 = Var.M1_P      //Throttle
+endif
