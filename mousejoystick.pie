@@ -21,6 +21,13 @@ endif
 if (var.off) then
    //Mouse control
    mouse.Swallow = false
+   //IL2 turret crutch
+   if (Keyboard.Ctrl) then
+   if (Mouse1.x = 1 and Delta(Mouse1.DirectInputX) > 0) then Mouse1.x = 0
+   if (Mouse1.x = 0 and Delta(Mouse1.DirectInputX) < 0) then Mouse1.x = 1
+   //if (Mouse1.y = 1 and Delta(Mouse1.DirectInputY) > 0) then Mouse1.y = 0
+   //if (Mouse1.y = 0 and Delta(Mouse1.DirectInputY) < 0) then Mouse1.y = 1
+   endif
 else
    //Mouse blocked
    mouse1.Swallow = true
