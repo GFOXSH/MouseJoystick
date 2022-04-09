@@ -1,4 +1,4 @@
-if starting then
+﻿if starting then
    //Adjustable
    Pie.FrameRate = 1000    //Mouse frequency
    var.M1_dpi = 800      //Mouse resolution
@@ -14,24 +14,24 @@ if starting then
 endif
 
 //Turn on/off
-if pressed (Mouse1.MiddleButton) then
+if pressed (Mouse.MiddleButton) then
    var.off = not var.off
    var.trim = false
 endif
 
 if (var.off) then
    //Mouse control
-   mouse.Swallow = false
+   Mouse.Swallow = false
    //IL2 turret crutch
    if (Keyboard.Ctrl) then
-      if (Mouse1.x = 1 and Delta(Mouse1.DirectInputX) > 0) then Mouse1.x = 0
-      if (Mouse1.x = 0 and Delta(Mouse1.DirectInputX) < 0) then Mouse1.x = 1
-      //if (Mouse1.y = 1 and Delta(Mouse1.DirectInputY) > 0) then Mouse1.y = 0
-      //if (Mouse1.y = 0 and Delta(Mouse1.DirectInputY) < 0) then Mouse1.y = 1
+      if (Mouse.x = 1 and Delta(Mouse.DirectInputX) > 0) then Mouse.x = 0
+      if (Mouse.x = 0 and Delta(Mouse.DirectInputX) < 0) then Mouse.x = 1
+      //if (Mouse.y = 1 and Delta(Mouse.DirectInputY) > 0) then Mouse.y = 0
+      //if (Mouse.y = 0 and Delta(Mouse.DirectInputY) < 0) then Mouse.y = 1
    endif
 else
    //Mouse blocked
-   mouse1.Swallow = true
+   Mouse.Swallow = true
 
    //Use trimmers
    if pressed (Keyboard.T) then
@@ -39,23 +39,23 @@ else
    endif
 
    //Mouse delta
-   var.dx = Delta(Mouse1.DirectInputX)/var.M1_dpi
-   var.dy = Delta(Mouse1.DirectInputY)/var.M1_dpi
-   var.dz = Delta(Mouse1.DirectInputZ)
+   var.dx = Delta(Mouse.DirectInputX)/var.M1_dpi
+   var.dy = Delta(Mouse.DirectInputY)/var.M1_dpi
+   var.dz = Delta(Mouse.DirectInputZ)
 
    if (!var.trim) then
       //Combined axis
-      if (!Mouse1.RightButton) then var.M1_X += var.dx
-      if released (Mouse1.LeftButton) then var.M1_Z = var.M1_X
-      if (!Mouse1.LeftButton) then var.M1_Z += var.dx
-      if released (Mouse1.RightButton) then var.M1_X = var.M1_Z
+      if (!Mouse.RightButton) then var.M1_X += var.dx
+      if released (Mouse.LeftButton) then var.M1_Z = var.M1_X
+      if (!Mouse.LeftButton) then var.M1_Z += var.dx
+      if released (Mouse.RightButton) then var.M1_X = var.M1_Z
 
       //Other axis
       var.M1_Y += var.dy
       var.M1_P += var.dz/var.M1_mapP
 
       //Reset stick
-      if (Mouse1.LeftButton) and (Mouse1.RightButton) then
+      if (Mouse.LeftButton) and (Mouse.RightButton) then
          var.M1_X = 0
          var.M1_Y = 0
          var.M1_Z = 0
@@ -66,7 +66,7 @@ else
       var.M1_TZ -= var.dz/var.M1_mapT
 
       //Reset trimmers
-      if (Mouse1.LeftButton) and (Mouse1.RightButton) then
+      if (Mouse.LeftButton) and (Mouse.RightButton) then
          var.M1_TX = 0
          var.M1_TY = 0
          var.M1_TZ = 0
