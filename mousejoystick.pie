@@ -1,9 +1,9 @@
 ﻿if starting then
 	//Adjustable
-	Pie.FrameRate = 1000 //Mouse frequency
-	var.M1_dpi = 800//Mouse resolution
-	var.M1_Wheel = 22//Throttle wheel split
-	var.M1_TWheel = 20  //Trimmers wheel split
+	Pie.FrameRate = 1000	//Mouse frequency
+	var.M1_dpi = 800	//Mouse resolution
+	var.M1_Wheel = 22	//Throttle wheel split
+	var.M1_TWheel = 20	//Trimmers wheel split
 	//Not adjustable
 	var.M1_P = -1
 	var.M1_mapP = 60*var.M1_Wheel
@@ -89,11 +89,11 @@ if (var.M1_TZ < -1) then var.M1_TZ = -1
 if (var.M1_TZ >  1) then var.M1_TZ =  1
 
 //Translator
-PPJoy1.Analog0 = Var.M1_X//Ailerons
-PPJoy1.Analog1 = Var.M1_Y//Pitch
-PPJoy1.Analog2 = Var.M1_Z//Rudder
-PPJoy1.Analog3 = Var.M1_TX//Aileron trimmer
-PPJoy1.Analog4 = Var.M1_TY//Pitch trimmer
-PPJoy1.Analog5 = Var.M1_TZ//Trimmer rudder
-PPJoy1.Analog6 = Var.M1_P//Throttle
+PPJoy1.Analog0 = Var.M1_X	//Ailerons
+PPJoy1.Analog1 = Var.M1_Y	//Pitch
+PPJoy1.Analog2 = Var.M1_Z	//Rudder
+PPJoy1.Analog3 = Var.M1_TX	//Aileron trimmer
+PPJoy1.Analog4 = Var.M1_TY	//Pitch trimmer
+PPJoy1.Analog5 = Var.M1_TZ	//Trimmer rudder
+PPJoy1.Analog6 = Var.M1_P	//Throttle
 endif
