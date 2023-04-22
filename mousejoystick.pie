@@ -36,7 +36,7 @@ else
 	var.dy = Delta(Mouse.DirectInputY)/var.M1_dpi
 	var.dz = Delta(Mouse.DirectInputZ)
 
-	if (!Keyboard.T) and (!Keyboard.E) then
+	if (!Keyboard.T) and (!Keyboard.R) then
 		//Combined axis
 		if (!Mouse.RightButton) then var.M1_X += var.dx
 		if released (Mouse.LeftButton) then var.M1_Z = var.M1_X
@@ -64,7 +64,7 @@ else
 		endif
 	endif
 	
-	if (Keyboard.E) then
+	if (Keyboard.R) then
 		var.M1_TZ += var.dx
 		if (Mouse.LeftButton) and (Mouse.RightButton) then
 			var.M1_TZ = 0
