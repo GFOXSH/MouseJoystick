@@ -117,4 +117,3 @@ PPJoy2.Analog1 = Var.M1_TY	//Pitch trimmer
 PPJoy2.Analog2 = Var.M1_TZ	//Rudder trimmer
 PPJoy2.Analog3 = Var.M1_LB	//Left brake
 PPJoy2.Analog4 = Var.M1_RB	//Right brake
-endif
