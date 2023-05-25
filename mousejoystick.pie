@@ -62,10 +62,10 @@ else
 		var.M1_TY += var.dy
 	endif
 	if (Keyboard.T) and (Mouse.LeftButton) and (!Mouse.RightButton) then
-			var.M1_RL = true
-		else
-			var.M1_RL = false
-		endif
+		var.M1_RL = true
+	else
+		var.M1_RL = false
+	endif
 	if (Keyboard.T) and (!Mouse.LeftButton) and (Mouse.RightButton) then
 		var.M1_RR = true
 	else
