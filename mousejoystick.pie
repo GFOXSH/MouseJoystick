@@ -83,7 +83,6 @@ else
 	if (Keyboard.R) then
 		var.M1_Y += var.dy
 		var.M1_Z += var.dx
-		var.M1_P += var.dz/var.M1_mapP
 	endif
 	if (Keyboard.R) and (Mouse.LeftButton) then
 		var.M1_LB = 1
