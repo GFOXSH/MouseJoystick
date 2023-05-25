@@ -1,16 +1,13 @@
 ﻿if starting then
 	//Adjustable
 	Pie.FrameRate = 1000	//Mouse frequency
-	var.M1_dpi = 800	//Mouse resolution
+	var.M1_dpi = 1600	//Mouse resolution
 	var.M1_Wheel = 22	//Throttle wheel split
-	var.M1_TSplit = 20	//Trimmers split
 	//Not adjustable
 	var.M1_P = -1
 	var.M1_LB = -1
 	var.M1_RB = -1
 	var.M1_mapP = 60*var.M1_Wheel
-	var.M1_TSplit = var.M1_TSplit/2
-	var.M1_dpi = 2*var.M1_dpi
 	var.off = true
 endif
 
@@ -47,7 +44,6 @@ else
 
 		//Other axis
 		var.M1_Y += var.dy
-		var.M1_P += var.dz/var.M1_mapP
 
 		//Reset stick
 		if (Mouse.LeftButton) and (Mouse.RightButton) then
@@ -56,18 +52,31 @@ else
 			var.M1_Z = 0
 		endif
 	endif
+	
+	//Throttle
+	var.M1_P += var.dz/var.M1_mapP
 
 	//Trimmers
 	if (Keyboard.T) then
 		var.M1_TX += var.dx
 		var.M1_TY += var.dy
-		if pressed (Mouse.LeftButton) then var.M1_TZ -= 1/var.M1_TSplit
-		if pressed (Mouse.RightButton) then var.M1_TZ += 1/var.M1_TSplit
-		if (Mouse.LeftButton) and (Mouse.RightButton) then
-			var.M1_TX = 0
-			var.M1_TY = 0
-			var.M1_TZ = 0
+	endif
+	if (Keyboard.T) and (Mouse.LeftButton) and (!Mouse.RightButton) then
+			var.M1_RL = true
+		else
+			var.M1_RL = false
 		endif
+	if (Keyboard.T) and (!Mouse.LeftButton) and (Mouse.RightButton) then
+		var.M1_RR = true
+	else
+		var.M1_RR = false
+	endif
+	if (Keyboard.T) and (Mouse.LeftButton) and (Mouse.RightButton) then
+		var.M1_TX = 0
+		var.M1_TY = 0
+		var.M1_RC = true
+	else
+		var.M1_RC = false
 	endif
 	
 	//Wheel brakes
@@ -104,16 +113,16 @@ if (var.M1_TX < -1) then var.M1_TX = -1
 if (var.M1_TX >  1) then var.M1_TX =  1
 if (var.M1_TY < -1) then var.M1_TY = -1
 if (var.M1_TY >  1) then var.M1_TY =  1
-if (var.M1_TZ < -1) then var.M1_TZ = -1
-if (var.M1_TZ >  1) then var.M1_TZ =  1
 
 //Translator
 PPJoy1.Analog0 = Var.M1_X	//Ailerons
 PPJoy1.Analog1 = Var.M1_Y	//Pitch
 PPJoy1.Analog2 = Var.M1_Z	//Rudder
-PPJoy1.Analog3 = Var.M1_P	//Throttle
-PPJoy2.Analog0 = Var.M1_TX	//Aileron trimmer
-PPJoy2.Analog1 = Var.M1_TY	//Pitch trimmer
-PPJoy2.Analog2 = Var.M1_TZ	//Rudder trimmer
-PPJoy2.Analog3 = Var.M1_LB	//Left brake
-PPJoy2.Analog4 = Var.M1_RB	//Right brake
+PPJoy1.Analog3 = Var.M1_TX	//Aileron trimmer
+PPJoy1.Analog4 = Var.M1_TY	//Pitch trimmer
+PPJoy1.Analog5 = Var.M1_P	//Throttle
+PPJoy1.Analog6 = Var.M1_LB	//Left brake
+PPJoy1.Analog7 = Var.M1_RB	//Right brake
+PPJoy1.Digital0 = Var.M1_RL	//Rudder trimmer left
+PPJoy1.Digital1 = Var.M1_RR	//Rudder trimmer right
+PPJoy1.Digital2 = Var.M1_RC	//Rudder trimmer center
