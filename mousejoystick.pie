@@ -1,102 +1,126 @@
 ﻿if starting then
-	//Adjustable
-	Pie.FrameRate = 1000	//Mouse frequency
-	var.M1_dpi = 1600	//Mouse resolution
-	var.M1_Wheel = 22	//Throttle wheel split
-	//Not adjustable
-	var.M1_P = -1
-	var.M1_LB = -1
-	var.M1_RB = -1
-	var.M1_mapP = 60*var.M1_Wheel
-	var.off = true
+   //Adjustable
+   Pie.FrameRate = 250   //Mouse frequency
+   var.M1_dpi = 1600   //Mouse resolution
+   var.M1_Wheel = 22   //Throttle wheel split
+   var.M1_Zoom = 20   //Zoom wheel split
+   var.TrackirSens = 50 //TrackIR sens
+   var.TrackIRAR = 1.7 //Aspect Ratio
+   //Not adjustable
+   var.M1_P = -1
+   var.TrackIRZoom = 0
+   var.M1_mapP = 60 * var.M1_Wheel
+   var.M1_mapZ = 60 * var.M1_Zoom
+   var.off = true
 endif
 
-//Turn on/off
-if pressed (Mouse.MiddleButton) then
-	var.off = not var.off
-endif
+//Mouse delta
+var.dx = RemoveUnits(Delta(Mouse.DirectInputX)) / var.M1_dpi
+var.dy = RemoveUnits(Delta(Mouse.DirectInputY)) / var.M1_dpi
+var.dz = RemoveUnits(Delta(Mouse.DirectInputZ))
+
+if pressed (Mouse.MiddleButton) then var.off = not var.off
 
 if (var.off) then
-	//Mouse control
-	Mouse.Swallow = false
-	//IL2 turret crutch
-	if (Keyboard.Ctrl) then
-	if (Mouse.x = 1 and Delta(Mouse.DirectInputX) > 0) then Mouse.x = 0
-	if (Mouse.x = 0 and Delta(Mouse.DirectInputX) < 0) then Mouse.x = 1
-	//if (Mouse.y = 1 and Delta(Mouse.DirectInputY) > 0) then Mouse.y = 0
-	//if (Mouse.y = 0 and Delta(Mouse.DirectInputY) < 0) then Mouse.y = 1
-endif
+   //IL2 turret
+   if (Keyboard.Ctrl) then
+      if (Mouse.x = 1 and Delta(Mouse.DirectInputX) > 0) then Mouse.x = 0
+      if (Mouse.x = 0 and Delta(Mouse.DirectInputX) < 0) then Mouse.x = 1
+      //if (Mouse.y = 1 and Delta(Mouse.DirectInputY) > 0) then Mouse.y = 0
+      //if (Mouse.y = 0 and Delta(Mouse.DirectInputY) < 0) then Mouse.y = 1
+   endif
 else
-	//Mouse blocked
-	Mouse.Swallow = true
+   Mouse.Swallow = true
+   if (!Keyboard.R) then
+      if (!Keyboard.T) then
+         //Combined axis
+         if (!Mouse.LeftButton) then var.M1_Z += var.dx
+         if released (Mouse.LeftButton) then var.M1_Z = var.M1_X
+         if (!Mouse.RightButton) then var.M1_X += var.dx
+         if released (Mouse.RightButton) then var.M1_X = var.M1_Z
 
-	//Mouse delta
-	var.dx = Delta(Mouse.DirectInputX)/var.M1_dpi
-	var.dy = Delta(Mouse.DirectInputY)/var.M1_dpi
-	var.dz = Delta(Mouse.DirectInputZ)
+         //Other axis
+         var.M1_Y += var.dy
+         var.M1_P += var.dz / var.M1_mapP
 
-	if (!Keyboard.T) and (!Keyboard.R) then
-		//Combined axis
-		if (!Mouse.LeftButton) then var.M1_Z += var.dx
-		if released (Mouse.LeftButton) then var.M1_Z = var.M1_X
-		if (!Mouse.RightButton) then var.M1_X += var.dx
-		if released (Mouse.RightButton) then var.M1_X = var.M1_Z
+         //Reset joystick
+         if (Mouse.LeftButton) and (Mouse.RightButton) then
+            var.M1_X = 0
+            var.M1_Y = 0
+            var.M1_Z = 0
+         endif
+      endif
+      if (Keyboard.T) then
+         var.M1_TX += var.dx
+         var.M1_TY += var.dy
+         if pressed (Mouse.LeftButton) then var.M1_TZ -= 0.1
+         if pressed (Mouse.RightButton) then var.M1_TZ += 0.1
+         if (Mouse.LeftButton) and (Mouse.RightButton) then
+            var.M1_TX = 0
+            var.M1_TY = 0
+            var.M1_TZ = 0
+         endif
+      endif
+   endif
+endif
 
-		//Other axis
-		var.M1_Y += var.dy
+if (Keyboard.R) then
+   Mouse.Swallow = true
+   if (var.dx <> 0) then
+      var.TrackIRYaw = var.TrackIRYaw + var.TrackIRSens * var.TrackIRAR * var.dx
+      if (var.TrackIRYaw < -180) then var.TrackIRYaw = var.TrackIRYaw + 360
+      if (var.TrackIRYaw > 180) then var.TrackIRYaw = var.TrackIRYaw - 360
+   endif
+   if (var.dy <> 0) then
+      var.TrackIRPitch = var.TrackIRPitch - var.TrackIRSens * var.dy
+      if (var.TrackIRPitch < -180) then var.TrackIRPitch = var.TrackIRPitch + 360
+      if (var.TrackIRPitch > 180) then var.TrackIRPitch = var.TrackIRPitch - 360
+   endif
 
-		//Reset stick
-		if (Mouse.LeftButton) and (Mouse.RightButton) then
-			var.M1_X = 0
-			var.M1_Y = 0
-			var.M1_Z = 0
-		endif
-	endif
-	
-	//Throttle
-	var.M1_P += var.dz/var.M1_mapP
+   if (var.TrackIRYaw < -30) then
+      var.TrackIRShift = MapRange(var.TrackIRYaw, -30, -180, 0, -1)
+      var.TrackIRHeight = MapRange(var.TrackIRYaw, -30, -180, 0, 1)
+      var.TrackIRDist = MapRange(var.TrackIRYaw, -30, -180, 0, 1)
+   else if (var.TrackIRYaw > 30) then
+      var.TrackIRShift = MapRange(var.TrackIRYaw, 30, 180, 0, 1)
+      var.TrackIRHeight = MapRange(var.TrackIRYaw, 30, 180, 0, 1)
+      var.TrackIRDist = MapRange(var.TrackIRYaw, 30, 180, 0, 1)
+   else if (var.TrackIRPitch < -10) then
+      var.TrackIRShift = 0.0
+      var.TrackIRHeight = MapRange(var.TrackIRPitch, -10, -30, 0, -1)
+      var.TrackIRDist = MapRange(var.TrackIRPitch, -10, -30, 0, 1)
+   else if (var.TrackIRPitch > 10) then
+      var.TrackIRShift = 0.0
+      var.TrackIRHeight = MapRange(var.TrackIRPitch, 10, 30, 0, 1)
+      var.TrackIRDist = MapRange(var.TrackIRPitch, 10, 30, 0, 1)
+   else
+      var.TrackIRShift = 0
+      var.TrackIRHeight = 0
+      var.TrackIRDist = 0
+   endif
 
-	//Trimmers
-	if (Keyboard.T) then
-		var.M1_TX += var.dx
-		var.M1_TY += var.dy
-	endif
-	if (Keyboard.T) and (Mouse.LeftButton) and (!Mouse.RightButton) then
-		var.M1_RL = true
-	else
-		var.M1_RL = false
-	endif
-	if (Keyboard.T) and (!Mouse.LeftButton) and (Mouse.RightButton) then
-		var.M1_RR = true
-	else
-		var.M1_RR = false
-	endif
-	if (Keyboard.T) and (Mouse.LeftButton) and (Mouse.RightButton) then
-		var.M1_TX = 0
-		var.M1_TY = 0
-		var.M1_RC = true
-	else
-		var.M1_RC = false
-	endif
-	
-	//Wheel brakes
-	if (Keyboard.R) then
-		var.M1_Y += var.dy
-		var.M1_Z += var.dx
-	endif
-	if (Keyboard.R) and (Mouse.LeftButton) then
-		var.M1_LB = 1
-	else
-		var.M1_LB = -1
-	endif
-	if (Keyboard.R) and (Mouse.RightButton) then
-		var.M1_RB = 1
-	else
-		var.M1_RB = -1
-	endif
-	if released (Keyboard.R) then
-		var.M1_Z = var.M1_X
-	endif
+   if (Mouse.RightButton) then
+      var.TrackIRZoom -= var.dz / var.M1_mapZ * 5
+   else
+      var.TrackIRZoom -= var.dz / var.M1_mapZ
+   endif
+
+   if (Mouse.LeftButton) and (Mouse.RightButton) then
+      var.TrackIRYaw = 0
+      var.TrackIRPitch = 0
+      var.TrackIRShift = 0
+      var.TrackIRHeight = 0
+      var.TrackIRDist = 0
+   endif
+else
+   if (var.off) then Mouse.Swallow = false
+endif
+
+//TrackIR keeper
+if (FakeTrackIR.Roll < var.TrackIRRoll) then
+   FakeTrackIR.Roll = var.TrackIRRoll + 0.000001
+else
+   FakeTrackIR.Roll = var.TrackIRRoll - 0.000001
 endif
 
 //Limiter
@@ -112,16 +136,22 @@ if (var.M1_TX < -1) then var.M1_TX = -1
 if (var.M1_TX >  1) then var.M1_TX =  1
 if (var.M1_TY < -1) then var.M1_TY = -1
 if (var.M1_TY >  1) then var.M1_TY =  1
+if (var.M1_TZ < -1) then var.M1_TZ = -1
+if (var.M1_TZ >  1) then var.M1_TZ =  1
+if (var.TrackIRZoom < -1) then var.TrackIRZoom = -1
+if (var.TrackIRZoom >  1) then var.TrackIRZoom =  1
 
 //Translator
-PPJoy1.Analog0 = Var.M1_X	//Ailerons
-PPJoy1.Analog1 = Var.M1_Y	//Pitch
-PPJoy1.Analog2 = Var.M1_Z	//Rudder
-PPJoy1.Analog3 = Var.M1_TX	//Aileron trimmer
-PPJoy1.Analog4 = Var.M1_TY	//Pitch trimmer
-PPJoy1.Analog5 = Var.M1_P	//Throttle
-PPJoy1.Analog6 = Var.M1_LB	//Left brake
-PPJoy1.Analog7 = Var.M1_RB	//Right brake
-PPJoy1.Digital0 = Var.M1_RL	//Rudder trimmer left
-PPJoy1.Digital1 = Var.M1_RR	//Rudder trimmer right
-PPJoy1.Digital2 = Var.M1_RC	//Rudder trimmer center
+PPJoy1.Analog0 = var.M1_X          //Ailerons
+PPJoy1.Analog1 = var.M1_Y          //Pitch
+PPJoy1.Analog2 = var.M1_Z          //Rudder
+PPJoy1.Analog3 = var.M1_TX         //Aileron trimmer
+PPJoy1.Analog4 = var.M1_TY         //Pitch trimmer
+PPJoy1.Analog5 = var.M1_TZ         //Rudder trimmer
+PPJoy1.Analog6 = var.M1_P          //Throttle
+PPJoy1.Analog7 = var.TrackIRZoom   //TrackIR zoom
+FakeTrackIR.Yaw = FakeTrackIR.Yaw + 0.02 * (var.TrackIRYaw - FakeTrackIR.Yaw)
+FakeTrackIR.Pitch = FakeTrackIR.Pitch + 0.02 * (var.TrackIRPitch - FakeTrackIR.Pitch)
+FakeTrackIR.X = FakeTrackIR.X + 0.2 * (var.TrackIRShift - FakeTrackIR.X)
+FakeTrackIR.Y = FakeTrackIR.Y + 0.2 * (var.TrackIRHeight - FakeTrackIR.Y)
+FakeTrackIR.Z = FakeTrackIR.Z + 0.2 * (var.TrackIRDist - FakeTrackIR.Z)
