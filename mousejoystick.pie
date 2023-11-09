@@ -1,11 +1,11 @@
 ﻿if starting then
    //Adjustable
-   Pie.FrameRate = 250   //Mouse frequency
+   Pie.FrameRate = 100   //Mouse frequency
    var.M1_dpi = 1600   //Mouse resolution
    var.M1_Wheel = 22   //Throttle wheel split
    var.M1_Zoom = 20   //Zoom wheel split
    var.TrackirSens = 50 //TrackIR sens
-   var.TrackIRAR = 1.7 //Aspect Ratio
+   var.TrackIRAR = 1.78 //Aspect Ratio
    //Not adjustable
    var.M1_P = -1
    var.TrackIRZoom = 0
@@ -15,22 +15,34 @@
 endif
 
 //Mouse delta
-var.dx = RemoveUnits(Delta(Mouse.DirectInputX)) / var.M1_dpi
-var.dy = RemoveUnits(Delta(Mouse.DirectInputY)) / var.M1_dpi
-var.dz = RemoveUnits(Delta(Mouse.DirectInputZ))
+var.dx = RemoveUnits((Mouse.DirectInputX - var.x)) / var.M1_dpi
+var.dy = RemoveUnits((Mouse.DirectInputY - var.y)) / var.M1_dpi
+var.dz = RemoveUnits((Mouse.DirectInputZ - var.Z))
+
+if var.MouseSwallow then
+   Mouse.DirectInputX = var.x
+   Mouse.DirectInputY = var.y
+   Mouse.DirectInputZ = var.z
+else
+   var.x = Mouse.DirectInputX
+   var.y = Mouse.DirectInputY
+   var.z = Mouse.DirectInputZ
+   if (Keyboard.Ctrl) and (Mouse.LeftButton) then
+      var.LB = true
+   else
+      var.LB = false
+   endif
+   if (Keyboard.Ctrl) and (Mouse.RightButton) then
+      var.RB = true
+   else
+      var.RB = false
+   endif
+endif
 
 if pressed (Mouse.MiddleButton) then var.off = not var.off
 
-if (var.off) then
-   //IL2 turret
-   if (Keyboard.Ctrl) then
-      if (Mouse.x = 1 and Delta(Mouse.DirectInputX) > 0) then Mouse.x = 0
-      if (Mouse.x = 0 and Delta(Mouse.DirectInputX) < 0) then Mouse.x = 1
-      //if (Mouse.y = 1 and Delta(Mouse.DirectInputY) > 0) then Mouse.y = 0
-      //if (Mouse.y = 0 and Delta(Mouse.DirectInputY) < 0) then Mouse.y = 1
-   endif
-else
-   Mouse.Swallow = true
+if (!var.off) then
+   var.MouseSwallow = true
    if (!Keyboard.R) then
       if (!Keyboard.T) then
          //Combined axis
@@ -65,7 +77,7 @@ else
 endif
 
 if (Keyboard.R) then
-   Mouse.Swallow = true
+   var.MouseSwallow = true
    if (var.dx <> 0) then
       var.TrackIRYaw = var.TrackIRYaw + var.TrackIRSens * var.TrackIRAR * var.dx
       if (var.TrackIRYaw < -180) then var.TrackIRYaw = var.TrackIRYaw + 360
@@ -113,7 +125,7 @@ if (Keyboard.R) then
       var.TrackIRDist = 0
    endif
 else
-   if (var.off) then Mouse.Swallow = false
+   if (var.off) then var.MouseSwallow = false
 endif
 
 //TrackIR keeper
@@ -150,6 +162,8 @@ PPJoy1.Analog4 = var.M1_TY         //Pitch trimmer
 PPJoy1.Analog5 = var.M1_TZ         //Rudder trimmer
 PPJoy1.Analog6 = var.M1_P          //Throttle
 PPJoy1.Analog7 = var.TrackIRZoom   //TrackIR zoom
+PPJoy1.Digital0 = var.LB
+PPJoy1.Digital1 = var.RB
 FakeTrackIR.Yaw = FakeTrackIR.Yaw + 0.02 * (var.TrackIRYaw - FakeTrackIR.Yaw)
 FakeTrackIR.Pitch = FakeTrackIR.Pitch + 0.02 * (var.TrackIRPitch - FakeTrackIR.Pitch)
 FakeTrackIR.X = FakeTrackIR.X + 0.2 * (var.TrackIRShift - FakeTrackIR.X)
